@@ -3,11 +3,135 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  @apply bg-gray-900 text-white;
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+/* Styles pour le mode contraste élevé */
+.high-contrast {
+  --tw-gradient-from: #000000 !important;
+  --tw-gradient-to: #000000 !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+  color: #ffffff !important;
+}
+
+.high-contrast button,
+.high-contrast a,
+.high-contrast input,
+.high-contrast select {
+  border: 2px solid #ffffff !important;
+}
+
+.high-contrast button:hover,
+.high-contrast a:hover {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.high-contrast .bg-white\/5 {
+  background-color: #333333 !important;
+}
+
+.high-contrast .bg-white\/10 {
+  background-color: #444444 !important;
+}
+
+.high-contrast .text-white\/70,
+.high-contrast .text-white\/50 {
+  color: #ffffff !important;
+}
+
+.high-contrast .border-white\/10 {
+  border-color: #ffffff !important;
+}
+
+.high-contrast .bg-pink-500 {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+.high-contrast .bg-purple-500\/20,
+.high-contrast .bg-red-500\/20 {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.high-contrast .text-purple-300,
+.high-contrast .text-red-300 {
+  color: #000000 !important;
+}
+
+/* Styles pour l'accessibilité des focus */
+button:focus,
+a:focus,
+input:focus,
+select:focus {
+  outline: 3px solid #ff69b4 !important;
+  outline-offset: 2px !important;
+}
+
+/* Styles pour les animations réduites */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Styles pour améliorer la lisibilité */
+.text-xs {
+  line-height: 1.5;
+}
+
+.text-sm {
+  line-height: 1.5;
+}
+
+/* Styles pour les éléments interactifs */
+button,
+a,
+[role="button"] {
+  cursor: pointer;
+}
+
+/* Styles pour les éléments non interactifs */
+[aria-disabled="true"],
+[disabled] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Styles pour les éléments cachés mais accessibles aux lecteurs d'écran */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 /* Custom Scrollbar */
@@ -34,9 +158,8 @@ html {
 
 /* Neon Text Effect */
 .neon-text {
-  text-shadow: 0 0 10px theme('colors.pink.500'),
-               0 0 20px theme('colors.pink.500'),
-               0 0 30px theme('colors.pink.500');
+  text-shadow: 0 0 10px theme("colors.pink.500"),
+    0 0 20px theme("colors.pink.500"), 0 0 30px theme("colors.pink.500");
 }
 
 /* Glass Effect */
