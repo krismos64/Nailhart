@@ -24,11 +24,18 @@ import {
   FolderOpen,
   Trash2,
   Grid,
+  Share2,
+  BookOpen,
+  Image,
 } from "lucide-react";
 import NailCanvas, { NailShape, NailTexture } from "../components/NailCanvas";
 import Nail3DViewer from "../components/Nail3DViewer";
 import HandTryOnViewer from "../components/HandTryOnViewer";
 import NailPatterns, { NailPattern } from "../components/NailPatterns";
+import ShareDesign from "../components/ShareDesign";
+import TutorialGuide, { Tutorial } from "../components/TutorialGuide";
+import TutorialsList from "../components/TutorialsList";
+import ColorExtractor from "../components/ColorExtractor";
 
 // Étendre l'interface Canvas pour inclure undo/redo
 interface ExtendedCanvas extends fabric.Canvas {
@@ -80,6 +87,11 @@ const Configurator = () => {
   const [selectedNailIndex, setSelectedNailIndex] = useState<number | null>(
     null
   );
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [showTutorialsList, setShowTutorialsList] = useState(false);
+  const [activeTutorial, setActiveTutorial] = useState<Tutorial | null>(null);
+  const [showColorExtractor, setShowColorExtractor] = useState(false);
+  const [customColors, setCustomColors] = useState<string[]>([]);
 
   const canvasRefs = useRef<ExtendedCanvas[]>([]);
 
@@ -387,6 +399,41 @@ const Configurator = () => {
     setShowPatterns(false);
   };
 
+  // Fonctions pour les tutoriels
+  const handleSelectTutorial = (tutorial: Tutorial) => {
+    setActiveTutorial(tutorial);
+    setShowTutorialsList(false);
+  };
+
+  const handleCloseTutorial = () => {
+    setActiveTutorial(null);
+  };
+
+  const handleSelectTool = (tool: string) => {
+    setSelectedTool(tool as Tool);
+  };
+
+  const handleSelectColor = (color: string) => {
+    setSelectedColor(color);
+  };
+
+  const handleSelectShape = (shape: string) => {
+    setSelectedNailShape(shape as NailShape);
+  };
+
+  const handleSelectTexture = (texture: string) => {
+    setSelectedNailTexture(texture as NailTexture);
+  };
+
+  // Ajouter une couleur personnalisée
+  const handleAddCustomColor = (color: string) => {
+    if (!customColors.includes(color)) {
+      setCustomColors([...customColors, color]);
+    }
+    setSelectedColor(color);
+    setShowColorExtractor(false);
+  };
+
   return (
     <div className="pt-20 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -595,6 +642,25 @@ const Configurator = () => {
                     style={{ backgroundColor: color }}
                   />
                 ))}
+                {customColors.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`w-8 h-8 rounded-full transition-transform hover:scale-110 ${
+                      selectedColor === color
+                        ? "ring-2 ring-pink-500 ring-offset-2 ring-offset-gray-900"
+                        : ""
+                    }`}
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+                <button
+                  onClick={() => setShowColorExtractor(true)}
+                  className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"
+                  title="Extraire des couleurs d'une image"
+                >
+                  <Image size={16} />
+                </button>
               </div>
               <input
                 type="color"
@@ -623,6 +689,13 @@ const Configurator = () => {
                     >
                       <Grid className="w-4 h-4 mr-1" />
                       Motifs
+                    </button>
+                    <button
+                      onClick={() => setShowTutorialsList(true)}
+                      className="px-3 py-1 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 text-sm flex items-center"
+                    >
+                      <BookOpen className="w-4 h-4 mr-1" />
+                      Tutoriels
                     </button>
                   </div>
                   <div className="flex space-x-2">
@@ -653,6 +726,13 @@ const Configurator = () => {
                       title="Sauvegarder le design"
                     >
                       <Save />
+                    </button>
+                    <button
+                      onClick={() => setShowShareModal(true)}
+                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10"
+                      title="Partager le design"
+                    >
+                      <Share2 />
                     </button>
                   </div>
                 </div>
@@ -863,6 +943,35 @@ const Configurator = () => {
                 </div>
               </div>
             )}
+
+            {/* Modal pour partager le design */}
+            {showShareModal && (
+              <ShareDesign
+                thumbnails={canvasRefs.current
+                  .map((canvas) =>
+                    canvas ? canvas.toDataURL({ format: "png" }) : ""
+                  )
+                  .filter(Boolean)}
+                designName={designName || "Mon design"}
+                onClose={() => setShowShareModal(false)}
+              />
+            )}
+
+            {/* Modal pour afficher la liste des tutoriels */}
+            {showTutorialsList && (
+              <TutorialsList
+                onSelectTutorial={handleSelectTutorial}
+                onClose={() => setShowTutorialsList(false)}
+              />
+            )}
+
+            {/* Modal pour extraire des couleurs */}
+            {showColorExtractor && (
+              <ColorExtractor
+                onSelectColor={handleAddCustomColor}
+                onClose={() => setShowColorExtractor(false)}
+              />
+            )}
           </div>
 
           {/* Layers & Stickers Panel */}
@@ -938,7 +1047,7 @@ const Configurator = () => {
         </div>
 
         {/* Export Button */}
-        <div className="mt-8 flex justify-center">
+        <div className="mt-8 flex justify-center space-x-4">
           <button
             onClick={handleExport}
             className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg font-semibold flex items-center space-x-2 hover:shadow-lg hover:shadow-pink-500/30 transition-all duration-300"
@@ -946,8 +1055,34 @@ const Configurator = () => {
             <Download />
             <span>Exporter les Designs</span>
           </button>
+          <button
+            onClick={() => setShowShareModal(true)}
+            className="px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg font-semibold flex items-center space-x-2 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300"
+          >
+            <Share2 />
+            <span>Partager</span>
+          </button>
+          <button
+            onClick={() => setShowTutorialsList(true)}
+            className="px-8 py-4 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg font-semibold flex items-center space-x-2 hover:shadow-lg hover:shadow-green-500/30 transition-all duration-300"
+          >
+            <BookOpen />
+            <span>Tutoriels</span>
+          </button>
         </div>
       </div>
+
+      {/* Tutoriel actif */}
+      {activeTutorial && (
+        <TutorialGuide
+          tutorial={activeTutorial}
+          onClose={handleCloseTutorial}
+          onSelectTool={handleSelectTool}
+          onSelectColor={handleSelectColor}
+          onSelectShape={handleSelectShape}
+          onSelectTexture={handleSelectTexture}
+        />
+      )}
     </div>
   );
 };
